@@ -180,10 +180,16 @@ func (uh uploadHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	je := json.NewEncoder(w)
 	defer func() {
 		if e := recover(); e != nil {
-			code = http.StatusInternalServerError
 			err := trace(e)
-			data = strings.Join(err.Stack(), "\n")
-			mesg = err.Err().Error()
+			switch hr := err.Err().(type) {
+			case httpReply:
+				code = hr.Code
+				mesg = hr.Mesg
+			default:
+				code = http.StatusInternalServerError
+				data = strings.Join(err.Stack(), "\n")
+				mesg = err.Err().Error()
+			}
 		}
 		w.Header().Set("Content-Type", "application/json")
 		err := je.Encode(map[string]any{"code": code, "data": data, "mesg": mesg})
