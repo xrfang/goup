@@ -185,6 +185,7 @@ func (uh uploadHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			data = strings.Join(err.Stack(), "\n")
 			mesg = err.Err().Error()
 		}
+		w.Header().Set("Content-Type", "application/json")
 		err := je.Encode(map[string]any{"code": code, "data": data, "mesg": mesg})
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "goup:ServeHTTP: %v\n", err)
