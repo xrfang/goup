@@ -86,7 +86,9 @@ func getUploadArgs(r *http.Request) *uploadArgs {
 		q.Add(c.Name, c.Value)
 	}
 	ct, _, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
-	assert(err)
+	if err != nil {
+		emit(400, nil, err.Error())
+	}
 	switch ct {
 	case "application/octet-stream":
 		for k, vs := range r.URL.Query() {
