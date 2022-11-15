@@ -22,6 +22,7 @@ import (
 
 type (
 	Config struct {
+		CORS  bool   //cross-origin resource sharing
 		Limit int64  //max upload size in byte
 		Queue string //temp dir for chunks
 		Store string //final file directory
@@ -175,6 +176,15 @@ func getUploadArgs(r *http.Request) *uploadArgs {
 }
 
 func (uh uploadHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if uh.cfg.CORS {
+		w.Header().Add("Access-Control-Allow-Origin", "*")
+		w.Header().Add("Access-Control-Allow-Methods", "DELETE, POST, GET, OPTIONS")
+		w.Header().Add("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+	}
 	var code int
 	var data, mesg string
 	je := json.NewEncoder(w)
