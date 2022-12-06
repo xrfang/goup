@@ -47,6 +47,16 @@ type (
 
 func NewHandler(cfg *Config, log Logger, auth Auth) *uploadHandler {
 	var uh uploadHandler
+	if cfg == nil {
+		cfg = &Config{
+			CORS:  true,
+			Limit: 1024 * 1024,
+			Queue: filepath.Join(os.TempDir(), "goup", "queue"),
+			Store: filepath.Join(os.TempDir(), "goup"),
+		}
+	}
+	os.MkdirAll(cfg.Queue, 0777)
+	os.MkdirAll(cfg.Store, 0777)
 	uh.cfg = cfg
 	uh.log = log
 	if uh.log == nil {
